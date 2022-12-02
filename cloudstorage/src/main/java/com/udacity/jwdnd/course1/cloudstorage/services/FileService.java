@@ -42,9 +42,12 @@ public class FileService {
         String userName = authen.getName();
         User user = userMp.getUserByUsername(userName);
 
-//        File file = fileMp.getFileByName(multipartFile.getOriginalFilename(), user.getUserId());
+        File file = fileMp.getFileByName(multipartFile.getOriginalFilename(), user.getUserId());
+        if (file != null) {
+            return 0;
+        }
 
-        File file = new File();
+        file = new File();
         file.setFileName(multipartFile.getOriginalFilename());
         file.setContentType(multipartFile.getContentType());
         file.setFileSize(Long.toString(multipartFile.getSize()));

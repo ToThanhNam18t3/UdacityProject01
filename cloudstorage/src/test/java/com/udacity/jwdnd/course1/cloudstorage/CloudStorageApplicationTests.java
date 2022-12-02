@@ -3,7 +3,6 @@ package com.udacity.jwdnd.course1.cloudstorage;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -86,6 +85,7 @@ class CloudStorageApplicationTests {
 		// You may have to modify the element "success-msg" and the sign-up 
 		// success message below depening on the rest of your code.
 		*/
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-msg")));
 		Assertions.assertTrue(driver.findElement(By.id("success-msg")).getText().contains("You successfully signed up!"));
 	}
 
@@ -124,8 +124,7 @@ class CloudStorageApplicationTests {
 	 * rest of your code. 
 	 * This test is provided by Udacity to perform some basic sanity testing of 
 	 * your code to ensure that it meets certain rubric criteria. 
-	 * 
-	 * If this test is failing, please ensure that you are handling redirecting users 
+	 * If this test is failing, please ensure that you are handling redirecting users
 	 * back to the login page after a succesful sign up.
 	 * Read more about the requirement in the rubric: 
 	 * https://review.udacity.com/#!/rubrics/2724/view 
@@ -134,9 +133,42 @@ class CloudStorageApplicationTests {
 	public void testRedirection() {
 		// Create a test account
 		doMockSignUp("Redirection","Test","RT","123");
-		
+
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("login-link")));
+		WebElement backToLoginLink = driver.findElement(By.id("login-link"));
+		backToLoginLink.click();
+
 		// Check if we have been redirected to the log in page.
 		Assertions.assertEquals("http://localhost:" + this.port + "/login", driver.getCurrentUrl());
+	}
+
+	/*
+	* Checking login successful and then logout then check differences url
+	* */
+	@Test
+	public void verify_authorization_home_page(){
+		// Create a test account
+		doMockSignUp("verify_authorization_home_page","verify_authorization_home_page","verify_authorization_home_page","verify_authorization_home_page");
+		doLogIn("RT", "123");
+
+		// Get home page url
+		String homepageUrl = driver.getCurrentUrl();
+
+		// Log out action
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("logout-button")));
+		WebElement backToLoginLink = driver.findElement(By.id("logout-button"));
+		backToLoginLink.click();
+
+		// Get url after logging out and navigate
+		driver.navigate().to(homepageUrl);
+		String logoutUrl = driver.getCurrentUrl();
+
+		// Compare url
+		Boolean compare = homepageUrl != logoutUrl ? true : false;
+
+		Assertions.assertTrue(compare);
 	}
 
 	/**
@@ -164,15 +196,15 @@ class CloudStorageApplicationTests {
 
 
 	/**
-	 * PLEASE DO NOT DELETE THIS TEST. You may modify this test to work with the 
-	 * rest of your code. 
-	 * This test is provided by Udacity to perform some basic sanity testing of 
-	 * your code to ensure that it meets certain rubric criteria. 
-	 * 
+	 * PLEASE DO NOT DELETE THIS TEST. You may modify this test to work with the
+	 * rest of your code.
+	 * This test is provided by Udacity to perform some basic sanity testing of
+	 * your code to ensure that it meets certain rubric criteria.
+	 *
 	 * If this test is failing, please ensure that you are handling uploading large files (>1MB),
-	 * gracefully in your code. 
-	 * 
-	 * Read more about file size limits here: 
+	 * gracefully in your code.
+	 *
+	 * Read more about file size limits here:
 	 * https://spring.io/guides/gs/uploading-files/ under the "Tuning File Upload Limits" section.
 	 */
 	@Test
@@ -206,8 +238,8 @@ class CloudStorageApplicationTests {
 	@Test
 	public void addNote_then_doNothing() {
 		// Create a test count
-		doMockSignUp("Test", "Still Test", "NamTT20", "NamTT20");
-		doLogIn("NamTT20", "NamTT20");
+		doMockSignUp("addNote", "addNote", "addNote", "addNote");
+		doLogIn("addNote", "addNote");
 
 		// Upload a note
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
@@ -237,8 +269,8 @@ class CloudStorageApplicationTests {
 	@Test
 	public void updateNote_then_doNothing(){
 		// Create a test count
-		doMockSignUp("Test", "Test", "NamTT20", "NamTT20");
-		doLogIn("NamTT20", "NamTT20");
+		doMockSignUp("updateNote", "updateNote", "updateNote", "NamTT20");
+		doLogIn("updateNote", "NamTT20");
 
 		// Upload a note
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
@@ -284,9 +316,8 @@ class CloudStorageApplicationTests {
 	@Test
 	public void deleteNote_then_doNothing() {
 		// Create a test count
-		doMockSignUp("Test", "Test", "NamTT20", "NamTT20");
-		doLogIn("NamTT20", "NamTT20");
-
+		doMockSignUp("deleteNote", "deleteNotet", "deleteNote", "deleteNote");
+		doLogIn("deleteNote", "deleteNote");
 		// Upload a note
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
 		WebElement noteTab = driver.findElement(By.id("nav-notes-tab"));
@@ -320,11 +351,11 @@ class CloudStorageApplicationTests {
 	@Test
 	public void uploadFile_then_doNothing() {
 		// Create a test count
-		doMockSignUp("I love uda", "I hate Uda", "NamTT20", "NamTT20");
-		doLogIn("NamTT20", "NamTT20");
+		doMockSignUp("uploadFile", "uploadFile", "uploadFile", "uploadFile");
+		doLogIn("uploadFile", "uploadFile");
 
 		// Upload a valid file
-		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
+		WebDriverWait webDriverWait = new WebDriverWait(driver, 100);
 		webDriverWait.until(ExpectedConditions.titleContains("Home"));
 		String fileName = "FileUploadTest.docx";
 
@@ -349,8 +380,8 @@ class CloudStorageApplicationTests {
 	@Test
 	public void deleteFile_then_doNothing() {
 		// Create a test count
-		doMockSignUp("I love Uda", "I hate Uda", "NamTT20", "NamTT20");
-		doLogIn("NamTT20", "NamTT20");
+		doMockSignUp("deleteFile", "deleteFile", "deleteFile", "deleteFile");
+		doLogIn("deleteFile", "deleteFile");
 
 		// Upload a valid file
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
@@ -381,8 +412,8 @@ class CloudStorageApplicationTests {
 	@Test
 	public void addCredential_then_doNothing() {
 		// Create a test count
-		doMockSignUp("I love Uda", "I hate Uda", "NamTT20", "NamTT20");
-		doLogIn("NamTT20", "NamTT20");
+		doMockSignUp("addCredential", "addCredential", "addCredential", "addCredential");
+		doLogIn("addCredential", "addCredential");
 
 		// Uploading note
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
@@ -412,8 +443,8 @@ class CloudStorageApplicationTests {
 	@Test
 	public void editCredential_then_doNothing() {
 		// Create a test count
-		doMockSignUp("I love Uda", "I hate Uda", "NamTT20", "NamTT20");
-		doLogIn("NamTT20", "NamTT20");
+		doMockSignUp("editCredential", "editCredential", "editCredential", "editCredential");
+		doLogIn("editCredential", "editCredential");
 
 		// Upload a note
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
@@ -460,8 +491,8 @@ class CloudStorageApplicationTests {
 	@Test
 	public void testDeleteCredential() {
 		// Create a test count
-		doMockSignUp("I love Uda", "I hate Uda", "NamTT20", "NamTT20");
-		doLogIn("NamTT20", "NamTT20");
+		doMockSignUp("deleteCredential", "deleteCredential", "deleteCredential", "deleteCredential");
+		doLogIn("deleteCredential", "deleteCredential");
 
 		// Upload a note
 		WebDriverWait webDriverWait = new WebDriverWait(driver, 2);
